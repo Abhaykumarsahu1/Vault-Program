@@ -35,7 +35,7 @@ pub fn deposit(ctx: Context<Deposit>, amount:u64)->Result<()>{
     let cpi_ctx = CpiContext::new(
         ctx.accounts.system_program.key(),
         cpi_accounts,
-    )
+    );
 
     Transfer(cpi_ctx, amount)?; //if the transfer fails then error will propogate 
 
