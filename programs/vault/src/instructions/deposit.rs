@@ -1,4 +1,4 @@
-use anchor::{
+use anchor_lang::{
     prelude::*,
     system_program::{transfer, Transfer},
 };
@@ -6,7 +6,7 @@ use anchor::{
 use crate::{
     constants::{VAULT_SEED, VAULT_STATE_SEED},
     state::VaultState,
-}
+};
 
 #[derive(Accounts)]
 pub struct Deposit<'info>{
@@ -37,7 +37,7 @@ pub fn deposit(ctx: Context<Deposit>, amount:u64)->Result<()>{
         cpi_accounts,
     );
 
-    Transfer(cpi_ctx, amount)?; //if the transfer fails then error will propogate 
+    transfer(cpi_ctx, amount)?; //if the transfer fails then error will propogate 
 
     Ok(())
 

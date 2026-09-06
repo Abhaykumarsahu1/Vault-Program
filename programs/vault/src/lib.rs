@@ -16,8 +16,19 @@ pub mod vault {
     use super::*;
 
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        crate::instructions::initialize::handle_initialize(ctx)
+        instructions::initialize(ctx)
     }
 
+    pub fn deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
+        instructions::deposit(ctx, amount)
+    }
+
+    pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
+        instructions::withdraw(ctx, amount)
+    }
+
+    pub fn close(ctx: Context<Close>) -> Result<()> {
+        instructions::close(ctx)
+    }
   
 }

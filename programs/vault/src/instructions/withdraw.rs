@@ -1,4 +1,4 @@
-use anchor::{
+use anchor_lang::{
     prelude::*,
     system_program::{transfer, Transfer},
 };
@@ -6,10 +6,10 @@ use anchor::{
 use crate::{
     constants::{VAULT_SEED,VAULT_STATE_SEED},
     state::VaultState,
-}
+};
 
 #[derive(Accounts)]
-pub struct Withdraw{
+pub struct Withdraw<'info>{
     #[account(mut)]
     pub user: Signer<'info>,
 
@@ -19,10 +19,10 @@ pub struct Withdraw{
         seeds = [VAULT_SEED, user.key().as_ref()],
         bump,
     )]
-    pub vault: SystemAccount<'info>
+    pub vault: SystemAccount<'info>,
     
     #[account(
-        seed = [VAULT_STATE_SEED, user.key(),as_ref()],
+        seeds = [VAULT_STATE_SEED, user.key().as_ref()],
         bump,
     )]
     pub vault_state: Account<'info, VaultState>, //we are bringing vaultstate as it contains vault.bump
@@ -39,19 +39,21 @@ pub fn withdraw(ctx: Context<Withdraw>, amount:u64)->Result<()>{
     };
 
     //now we will create the signer seeds as vault does not have this privatekey
+    let user_key = ctx.accounts.user.key();
     let signer_seeds: &[&[u8]] = &[
         VAULT_SEED,
-        ctx.accounts.user.key().as_ref(),
+        user_key.as_ref(),
         &[ctx.accounts.vault_state.vault_bump],
     ];
 
+    let binding = [signer_seeds];
     let cpi_ctx = CpiContext::new_with_signer(//new_with_signer user here coz vault is signing here as pda with no private key so that's why we are using new_with_signer and passing the signer seeds for it to be able to verify and sign
         ctx.accounts.system_program.key(),
         cpi_accounts,
-        &[signer_seeds],
-    )
+        &binding,
+    );
 
-    Transfer(cpi_ctx, amount)?;
+    transfer(cpi_ctx, amount)?;
 
     Ok(())
 }

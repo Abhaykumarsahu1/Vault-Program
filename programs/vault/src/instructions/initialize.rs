@@ -1,5 +1,5 @@
 use anchor_lang::{
-    prelude::*;
+    prelude::*,
     system_program::{transfer, Transfer},
 };
 use crate::{
@@ -17,8 +17,8 @@ pub struct Initialize<'info>{
     #[account(
         init,
         payer = user,
-        space = ANCHOR_DISCRIMINATOR_LENGTH + VaultState::INIT_SPACE,//init space is basically how many bytes  i m intializing
-        seed = [VAULT_STATE_SEED, user.key().as_ref()],
+        space = 8 + VaultState::INIT_SPACE,//init space is basically how many bytes  i m intializing
+        seeds = [VAULT_STATE_SEED, user.key().as_ref()],
         bump,
     )]
     pub vault_state: Account<'info, VaultState>,
@@ -26,7 +26,7 @@ pub struct Initialize<'info>{
     //vault will be the system account that will be more like pda
     #[account(
         mut,
-        seed = [VAULT_SEED, user.key().as_ref()],
+        seeds = [VAULT_SEED, user.key().as_ref()],
         bump
     )]
     pub vault: SystemAccount<'info>,
@@ -46,7 +46,7 @@ pub fn initialize(ctx : Context<Initialize>)->Result<()>{
 
     //here we are preparing the cpi calls for the transfer
     let cpi_ctx = CpiContext::new(
-        ctx.account.system_program.key(),
+        ctx.accounts.system_program.key(),
         cpi_accounts,
     );
 
@@ -60,5 +60,5 @@ pub fn initialize(ctx : Context<Initialize>)->Result<()>{
     bump: ctx.bumps.vault_state,
 });
 
-    Ok(());
+    Ok(())
 }
